@@ -7,7 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { SidebarContainer } from "../components/Sidebar";
 import { ActiveChat } from "../components/ActiveChat";
 import { SocketContext } from "../context/socket";
-import moment from 'moment';
+import moment from "moment";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -81,14 +81,21 @@ const Home = ({ user, logout }) => {
 
   const addNewConvo = useCallback(
     (recipientId, message) => {
-      setConversations(prev => prev.map((convo) => {
-        if (convo.otherUser.id === recipientId) {
-          return {...convo, id: message.conversationId, latestMessageText: message.text, messages: [...convo.messages, message]};
-        }
-        return convo;
-      }));
+      setConversations((prev) =>
+        prev.map((convo) => {
+          if (convo.otherUser.id === recipientId) {
+            const convoCopy = { ...convo };
+            convoCopy.messages = [...convoCopy.messages, message];
+            convoCopy.id = message.conversationId;
+            convoCopy.latestMessageText = message.text;
+            return convoCopy;
+          } else {
+            return convo;
+          }
+        }),
+      );
     },
-    [setConversations],
+    [setConversations, conversations],
   );
 
   const addMessageToConversation = useCallback(
@@ -102,17 +109,23 @@ const Home = ({ user, logout }) => {
           messages: [message],
         };
         newConvo.latestMessageText = message.text;
-        return setConversations((prev) => [newConvo, ...prev]);
+        setConversations((prev) => [newConvo, ...prev]);
       }
 
-      setConversations(prev => prev.map((convo) => {
-        if (convo.id === message.conversationId) {
-          return {...convo, latestMessageText: message.text, messages: [...convo.messages, message]};
-        }
-        return convo;
-      }));
+      setConversations((prev) =>
+        prev.map((convo) => {
+          if (convo.id === message.conversationId) {
+            const convoCopy = { ...convo };
+            convoCopy.messages = [...convoCopy.messages, message];
+            convoCopy.latestMessageText = message.text;
+            return convoCopy;
+          } else {
+            return convo;
+          }
+        }),
+      );
     },
-    [setConversations],
+    [setConversations, conversations],
   );
 
   const setActiveChat = (username) => {
@@ -181,8 +194,11 @@ const Home = ({ user, logout }) => {
     const fetchConversations = async () => {
       try {
         const { data } = await axios.get("/api/conversations");
-        data.forEach(conversation => 
-           conversation.messages.sort((a, b) => moment(a.createdAt).valueOf() - moment(b.createdAt).valueOf())
+        data.forEach((conversation) =>
+          conversation.messages.sort(
+            (a, b) =>
+              moment(a.createdAt) - moment(b.createdAt),
+          ),
         );
         setConversations(data);
       } catch (error) {
