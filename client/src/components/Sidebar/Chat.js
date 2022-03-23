@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, Typography } from "@material-ui/core";
-import { BadgeAvatar, ChatContent } from "../Sidebar";
+import { Box } from "@material-ui/core";
+import { BadgeAvatar, ChatContent, UnreadMessages } from "../Sidebar";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
 const Chat = ({ conversation, setActiveChat }) => {
   const classes = useStyles();
   const { otherUser } = conversation;
+  const haveUnread = true;
 
   const handleClick = async (conversation) => {
     await setActiveChat(conversation.otherUser.username);
@@ -46,9 +47,7 @@ const Chat = ({ conversation, setActiveChat }) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      <Box className={classes.bubble}>
-        <Typography className={classes.text}>10</Typography>
-      </Box>
+      {haveUnread ? <UnreadMessages text={10} /> : null}
     </Box>
   );
 };
