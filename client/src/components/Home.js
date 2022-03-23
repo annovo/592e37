@@ -7,6 +7,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { SidebarContainer } from "../components/Sidebar";
 import { ActiveChat } from "../components/ActiveChat";
 import { SocketContext } from "../context/socket";
+import moment from 'moment';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -114,7 +115,7 @@ const Home = ({ user, logout }) => {
         return convo;
       }));
     },
-    [setConversations, conversations],
+    [setConversations],
   );
 
   const setActiveChat = (username) => {
@@ -183,6 +184,9 @@ const Home = ({ user, logout }) => {
     const fetchConversations = async () => {
       try {
         const { data } = await axios.get("/api/conversations");
+        data.forEach(conversation => 
+           conversation.messages.sort((a, b) => moment(a.createdAt).valueOf() - moment(b.createdAt).valueOf())
+        );
         setConversations(data);
       } catch (error) {
         console.error(error);
