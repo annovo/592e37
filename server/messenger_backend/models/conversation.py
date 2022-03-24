@@ -30,8 +30,7 @@ class Conversation(utils.CustomModel):
             return None
 
     def update_last_read(self, otherUserId, messageId):
-        if self.user1 == otherUserId:
+        if self.user1.id == otherUserId:
             self.lastReadMessageUser1 = messageId
         else:
             self.lastReadMessageUser2 = messageId
-        self.save()
