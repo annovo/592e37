@@ -55,6 +55,11 @@ const Home = ({ user, logout }) => {
     return data;
   };
 
+  const updateLastReadMessage = async (id, body) => {
+    const { data } = await axios.put(`/api/conversations/${id}`, body);
+    return data;
+  };
+
   const sendMessage = (data, body) => {
     socket.emit("new-message", {
       message: data.message,
@@ -128,16 +133,23 @@ const Home = ({ user, logout }) => {
     [setConversations, conversations],
   );
 
-  const setActiveChat = (conversation) => {
-    setConversations((prev) => prev.map((convo) => {
-      if(conversation.id == convo.id) {
-        const convoCopy = { ...convo };
-        convoCopy.unreadCount = 0;
-        return convoCopy;
-      } else {
-        return convo;
-      }
-    }));
+  const setActiveChat = async (conversation) => {
+    const lastReadId = conversation.messages.filter(message => message.senderId === conversation.otherUser.id).pop().id;
+    if(lastReadId !== conversation.lastRead) {
+      await updateLastReadMessage(conversation.id, { lastReadId });
+
+      setConversations((prev) => prev.map((convo) => {
+        if(conversation.id == convo.id) {
+          const convoCopy = { ...convo };
+          convoCopy.unreadCount = 0;
+          convoCopy.lastReadId = lastReadId;
+          return convoCopy;
+        } else {
+          return convo;
+        }
+      }));
+    }
+    
     setActiveConversation(conversation.otherUser.username);
   };
 
