@@ -16,8 +16,8 @@ class Conversation(utils.CustomModel):
     createdAt = models.DateTimeField(auto_now_add=True, db_index=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
-    lastUnreadMessageUser1 = models.IntegerField(null=True)
-    lastUnreadMessageUser2 = models.IntegerField(null=True)
+    lastReadMessageUser1 = models.IntegerField(null=True)
+    lastReadMessageUser2 = models.IntegerField(null=True)
     # find conversation given two user Ids
     def find_conversation(user1Id, user2Id):
         # return conversation or None if it doesn't exist
@@ -31,7 +31,7 @@ class Conversation(utils.CustomModel):
 
     def update_last_read(self, otherUserId, messageId):
         if self.user1 == otherUserId:
-            self.lastUnreadMessageUser1 = messageId
+            self.lastReadMessageUser1 = messageId
         else:
-            self.lastUnreadMessageUser2 = messageId
+            self.lastReadMessageUser2 = messageId
         self.save()
