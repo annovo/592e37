@@ -23,7 +23,11 @@ class ConversationById(APIView):
             conversation.update_last_read(user_id, last_read_id)
             conversation.save()
             
-            convo_dict = conversation.to_dict()
+            convo_dict = {
+                "lastReadId": last_read_id,
+                "readerId": user_id,
+            }
+
             return JsonResponse({"conversation": convo_dict})
         except Exception as e:
             return HttpResponse(status=500)
