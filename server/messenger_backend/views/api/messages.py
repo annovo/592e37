@@ -29,7 +29,6 @@ class Messages(APIView):
                     senderId=sender_id, text=text, conversation=conversation
                 )
                 message.save()
-                conversation.update_last_read(recipient_id, message.id)
 
                 message_json = message.to_dict()
                 return JsonResponse({"message": message_json, "sender": body["sender"]})
