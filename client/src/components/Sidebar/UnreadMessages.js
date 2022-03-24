@@ -17,12 +17,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const UnreadMessages = ({ text }) => {
+const UnreadMessages = ({ count }) => {
   const classes = useStyles();
 
   return (
     <Box className={classes.bubble}>
-      <Typography className={classes.text}>{text}</Typography>
+      <Typography className={classes.text}>
+        {count > 99 ? "99+" : count}
+      </Typography>
     </Box>
   );
 };
