@@ -44,7 +44,7 @@ class Conversations(APIView):
 
                 # set properties for notification count and latest message preview
                 convo_dict["latestMessageText"] = convo_dict["messages"][0]["text"]
-                messagesToUser = [m for i, m in enumerate(convo_dict["messages"]) if  m["senderId"] != user_id]
+                messages_to_user = [m for m in convo_dict["messages"] if  m["senderId"] != user_id]
 
                 # set a property "otherUser" so that frontend will have easier access
                 user_fields = ["id", "username", "photoUrl"]
@@ -52,12 +52,12 @@ class Conversations(APIView):
                     convo_dict["otherUser"] = convo.user1.to_dict(user_fields)
                     convo_dict["otherUser"]["lastRead"] = convo.lastReadMessageUser1
                     convo_dict["lastRead"] = convo.lastReadMessageUser2
-                    convo_dict["unreadCount"] = next((i for i, item in enumerate(messagesToUser) if item["id"] == convo.lastReadMessageUser2), len(messagesToUser))
+                    convo_dict["unreadCount"] = next((i for i, item in enumerate(messages_to_user) if item["id"] == convo.lastReadMessageUser2), len(messages_to_user))
                 elif convo.user2 and convo.user2.id != user_id:
                     convo_dict["otherUser"] = convo.user2.to_dict(user_fields)
                     convo_dict["otherUser"]["lastRead"] = convo.lastReadMessageUser2
                     convo_dict["lastRead"] = convo.lastReadMessageUser1
-                    convo_dict["unreadCount"] = next((i for i, item in enumerate(messagesToUser) if item["id"] == convo.lastReadMessageUser1), len(messagesToUser))
+                    convo_dict["unreadCount"] = next((i for i, item in enumerate(messages_to_user) if item["id"] == convo.lastReadMessageUser1), len(messages_to_user))
 
                 # set property for online status of the other user
                 if convo_dict["otherUser"]["id"] in online_users:
