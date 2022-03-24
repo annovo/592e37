@@ -128,8 +128,17 @@ const Home = ({ user, logout }) => {
     [setConversations, conversations],
   );
 
-  const setActiveChat = (username) => {
-    setActiveConversation(username);
+  const setActiveChat = (conversation) => {
+    setConversations((prev) => prev.map((convo) => {
+      if(conversation.id == convo.id) {
+        const convoCopy = { ...convo };
+        convoCopy.unreadCount = 0;
+        return convoCopy;
+      } else {
+        return convo;
+      }
+    }));
+    setActiveConversation(conversation.otherUser.username);
   };
 
   const addOnlineUser = useCallback((id) => {
