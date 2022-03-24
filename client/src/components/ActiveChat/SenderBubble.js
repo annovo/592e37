@@ -9,8 +9,8 @@ const useStyles = makeStyles(() => ({
     alignItems: "flex-end",
   },
   avatar: {
-    height: 30,
-    width: 30,
+    height: 20,
+    width: 20,
     marginRight: 11,
     marginTop: 6,
   },
