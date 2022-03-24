@@ -32,7 +32,6 @@ const useStyles = makeStyles((theme) => ({
 const Chat = ({ conversation, setActiveChat }) => {
   const classes = useStyles();
   const { otherUser } = conversation;
-  const haveUnread = true;
 
   const handleClick = async (conversation) => {
     await setActiveChat(conversation.otherUser.username);
@@ -47,7 +46,7 @@ const Chat = ({ conversation, setActiveChat }) => {
         sidebar={true}
       />
       <ChatContent conversation={conversation} />
-      {haveUnread ? <UnreadMessages text={10} /> : null}
+      {conversation.unreadCount !== 0 ? <UnreadMessages text={conversation.unreadCount} /> : null}
     </Box>
   );
 };
