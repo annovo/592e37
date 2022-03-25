@@ -17,14 +17,14 @@ class ConversationById(APIView):
             user_id = user.id
             conversation_id = id
             body = request.data
-            last_read_id = body.get("lastReadId")
+            last_read = body.get("lastRead")
             
             conversation = Conversation.objects.filter(id=conversation_id).first()
-            conversation.update_last_read(user_id, last_read_id)
+            conversation.update_last_read(user_id, last_read)
             conversation.save()
             
             convo_dict = {
-                "lastReadId": last_read_id,
+                "lastRead": last_read,
                 "readerId": user_id,
             }
 
