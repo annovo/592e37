@@ -68,6 +68,14 @@ const Home = ({ user, logout }) => {
     });
   };
 
+  const setReadMessage = (data, id) => {
+    socket.emit("read-message", {
+      lastRead: data.lastRead,
+      readerId: data.readerId,
+      conversationId: id,
+    });
+  };
+
   const postMessage = async (body) => {
     try {
       const data = await saveMessage(body);
@@ -115,43 +123,57 @@ const Home = ({ user, logout }) => {
       : unreadCount;
   };
 
-  const updateLastReadMessage = (conversationId, lastReadId) => {
-    setConversations((prev) =>
-      prev.map((convo) => {
-        if (convo.id === conversationId) {
-          const convoCopy = { ...convo };
-          convoCopy.otherUser = { ...convoCopy.otherUser, lastReadId };
-          return convoCopy;
-        } else {
-          return convo;
-        }
-      }),
-    );
+  const updateLastReadMessage = ({ lastRead, readerId, conversationId }) => {
+    if (readerId !== user.id) {
+      setConversations((prev) =>
+        prev.map((convo) => {
+          if (convo.id === conversationId) {
+            const convoCopy = { ...convo };
+            convoCopy.otherUser = { ...convoCopy.otherUser, lastRead };
+            return convoCopy;
+          } else {
+            return convo;
+          }
+        }),
+      );
+    }
   };
 
-  // const  = (data, body) => {
-  //   socket.emit("read-message", {
-  //     conversationId: data.message,
-  //     lastReadId: body.recipientId,
-  //     senderId: data.sender,
-  //   });
-  // };
+  const saveReadMessage = async (conversationId, lastRead) => {
+    try {
+      const data = await saveLastReadMessage(conversationId, {
+        lastRead,
+      });
+
+      setConversations((prev) =>
+        prev.map((convo) => {
+          if (conversationId === convo.id) {
+            const convoCopy = { ...convo };
+            convoCopy.unreadCount = 0;
+            convoCopy.lastRead = data.conversation.lastRead;
+            return convoCopy;
+          } else {
+            return convo;
+          }
+        }),
+      );
+
+      setReadMessage(data.conversation, conversationId);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const addMessageToConversation = useCallback(
-    (data) => {
+    async (data) => {
       const { message, sender = null } = data;
 
       // if message came from another chat we update count of unread messages
       const unreadCount = updateUnreadCount(message.senderId);
 
       //if we recieved message in active chat we update read message
-      // if (
-      //   message.senderId !== user.id &&
-      //   message.senderId=== activeConversation
-      // )
-      //   data = await saveLastReadMessage(message.conversationId, message.id);
-      //   lastReadId = data.lastReadId;
-      //
+      if (activeConversation === message.senderId)
+        await saveReadMessage(message.conversationId, message.id);
 
       // if sender isn't null, that means the message needs to be put in a brand new convo
       if (sender !== null) {
@@ -179,38 +201,19 @@ const Home = ({ user, logout }) => {
         }),
       );
     },
-    [setConversations, conversations],
+    [setConversations, conversations, activeConversation],
   );
 
   const setActiveChat = async (conversation) => {
-    const lastReadId = conversation.messages
+    setActiveConversation(conversation.otherUser.id);
+
+    const lastRead = conversation.messages
       .filter((message) => message.senderId === conversation.otherUser.id)
       .pop()?.id;
 
-    if (conversation.id && lastReadId && lastReadId !== conversation.lastRead) {
-      try {
-        const data = await saveLastReadMessage(conversation.id, {
-          lastReadId,
-        });
-
-        setConversations((prev) =>
-          prev.map((convo) => {
-            if (conversation.id === convo.id) {
-              const convoCopy = { ...convo };
-              convoCopy.unreadCount = 0;
-              convoCopy.lastReadId = data.lastReadId;
-              return convoCopy;
-            } else {
-              return convo;
-            }
-          }),
-        );
-      } catch (error) {
-        console.error(error);
-      }
+    if (conversation.id && lastRead && lastRead !== conversation.lastRead) {
+      await saveReadMessage(conversation.id, lastRead);
     }
-
-    setActiveConversation(conversation.otherUser.id);
   };
 
   const addOnlineUser = useCallback((id) => {
