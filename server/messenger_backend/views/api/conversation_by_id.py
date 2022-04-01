@@ -5,8 +5,8 @@ from messenger_backend.models import Conversation
 from rest_framework.views import APIView
 from rest_framework.request import Request
 
-class ConversationById(APIView):
 
+class ConversationById(APIView):
     def put(self, request: Request, id: int):
         try:
             user = get_user(request)
@@ -18,11 +18,15 @@ class ConversationById(APIView):
             conversation_id = id
             body = request.data
             last_read = body.get("lastRead")
-            
+
             conversation = Conversation.objects.filter(id=conversation_id).first()
+
+            if conversation.user1_id != user_id and conversation.user2_id != user_id:
+                return HttpResponse(status=401)
+
             conversation.update_last_read(user_id, last_read)
             conversation.save()
-            
+
             convo_dict = {
                 "lastRead": last_read,
                 "readerId": user_id,
