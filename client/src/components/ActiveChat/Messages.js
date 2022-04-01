@@ -10,8 +10,7 @@ const Messages = (props) => {
     <Box>
       {messages.map((message, index) => {
         const time = moment(message.createdAt).format("h:mm");
-        const isLastRead =
-          otherUser.lastRead && otherUser.lastRead === message.id;
+        const isLastRead = otherUser?.lastRead === message.id;
 
         return message.senderId === userId ? (
           <SenderBubble

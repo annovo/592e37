@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   bubble: {
-    backgroundColor: " #007FFF",
+    backgroundColor: "#007FFF",
     borderRadius: "46%",
     height: 24,
     marginRight: 17,
