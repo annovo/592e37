@@ -22,7 +22,7 @@ class ConversationById(APIView):
             conversation = Conversation.objects.filter(id=conversation_id).first()
 
             if conversation.user1_id != user_id and conversation.user2_id != user_id:
-                return HttpResponse(status=401)
+                return HttpResponse(status=403)
 
             conversation.update_last_read(user_id, last_read)
             conversation.save()
