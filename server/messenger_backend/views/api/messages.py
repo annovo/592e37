@@ -29,8 +29,9 @@ class Messages(APIView):
                     senderId=sender_id, text=text, conversation=conversation
                 )
                 message.save()
+
                 message_json = message.to_dict()
-                return JsonResponse({"message": message_json, "sender": body["sender"]})
+                return JsonResponse({"message": message_json, "sender": body["sender"], "recipientId" : recipient_id})
 
             # if we don't have conversation id, find a conversation to m       ake sure it doesn't already exist
             conversation = Conversation.find_conversation(sender_id, recipient_id)
@@ -45,6 +46,6 @@ class Messages(APIView):
             message = Message(senderId=sender_id, text=text, conversation=conversation)
             message.save()
             message_json = message.to_dict()
-            return JsonResponse({"message": message_json, "sender": sender})
+            return JsonResponse({"message": message_json, "sender": sender, "recipientId" : recipient_id})
         except Exception as e:
             return HttpResponse(status=500)
